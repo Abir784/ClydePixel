@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Mail;
 use App\Models\Order;
 use App\Models\OrderField;
+use App\Models\User;
 use App\Notifications\OrderCompleted;
 use App\Notifications\OrderPlaced;
 use Carbon\Carbon;
@@ -12,18 +12,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
     function OrderForm(){
         $orderFields = OrderField::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
+        $clientEmails = User::where('role', 2)
+            ->whereNotNull('email')
+            ->orderBy('email')
+            ->pluck('email');
 
         return view('frontend.add_order', [
             'orderFields' => $orderFields,
+            'clientEmails' => $clientEmails,
         ]);
     }
     function OrderPost(Request $request){
         $orderFields = OrderField::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
+        $isAdminCreator = in_array((int) Auth::user()->role, [0, 1], true);
+
+        $clientEmails = User::where('role', 2)
+            ->whereNotNull('email')
+            ->pluck('email')
+            ->map(fn (string $email) => trim($email))
+            ->filter()
+            ->values()
+            ->all();
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -31,6 +46,9 @@ class OrderController extends Controller
             'hours' => 'required|numeric|max:24|min:0',
             'minutes' => 'required|numeric|max:59|min:0',
             'comment' => 'nullable|string',
+            'associated_email' => $isAdminCreator
+                ? ['nullable', 'email', 'max:255', Rule::in($clientEmails)]
+                : ['prohibited'],
         ];
 
         $messages = [
@@ -59,7 +77,13 @@ class OrderController extends Controller
 
         $deadline = now()->addHours((int) $validatedData['hours']);
         $deadline=$deadline->addMinutes((int) $validatedData['minutes']);
-        Order::create([
+        $associatedEmail = null;
+        if ($isAdminCreator) {
+            $selectedAssociatedEmail = $validatedData['associated_email'] ?? null;
+            $associatedEmail = $selectedAssociatedEmail ?: Auth::user()->email;
+        }
+
+        $order = Order::create([
             'name' => $validatedData['name'],
             'folder_name' => $validatedData['folder_name'],
             'added_by' => Auth::user()->id,
@@ -69,16 +93,14 @@ class OrderController extends Controller
             'status' =>0,
             'deadline' => $deadline,
             'comment' => $validatedData['comment'] ?? null,
+            'associated_email' => $associatedEmail,
         ]);
 
         $details=[
-            'name' => $validatedData['name'],
-            'deadline' => Carbon::parse($deadline)->format('d-M-y h:i A'),
+            'name' => $order->name,
+            'deadline' => Carbon::parse($order->deadline)->format('d-M-y h:i A'),
         ];
-        $mails=Mail::all();
-        foreach($mails as $mail){
-            Notification::route('mail',$mail->email)->notify(new OrderPlaced($details));
-        }
+        $this->sendOrderNotification($order, new OrderPlaced($details));
 
         return back()->with('success','Order Created Successfully');
     }
@@ -115,21 +137,20 @@ class OrderController extends Controller
             abort(422);
         }
 
-       Order::where('id',$id)->update([
+        $order = Order::findOrFail($id);
+
+        $order->update([
             'status'=>$status,
             'last_updated_by'=>Auth::user()->id,
-          'updated_at'=>now(),
+            'updated_at'=>now(),
         ]);
-        $order=Order::where('id',$id)->first();
+
         if($status ==5){
             $details=[
                 'name' => $order->name,
                 'deadline' => now()->format('d-M-y h:i A'),
             ];
-            $mails=Mail::all();
-            foreach($mails as $mail){
-                Notification::route('mail',$mail->email)->notify(new OrderCompleted($details));
-            }
+            $this->sendOrderNotification($order, new OrderCompleted($details));
         }
 
         if ($request->expectsJson()) {
@@ -167,24 +188,6 @@ class OrderController extends Controller
             'orderWorkItems' => $orderWorkItems,
         ]);
     }
-    function EmailAdd(){
-        $mails=Mail::all();
-        return view('frontend.email_add',[
-            'mails'=>$mails,
-        ]);
-    }
-    function EmailPost(Request $request){
-        $data=$request->validate([
-            'email'=>'required|email',
-            'name'=>'required|string',
-        ]);
-        Mail::create([
-            'email'=>$data['email'],
-            'name'=>$data['name'],
-        ]);
-        return back();
-
-    }
 
     private function buildOrderWorkItems(Order $order): array
     {
@@ -205,5 +208,35 @@ class OrderController extends Controller
         }
 
         return $items;
+    }
+
+    private function sendOrderNotification(Order $order, object $notification): void
+    {
+        $emails = $this->getNotificationEmailsForOrder($order);
+
+        foreach ($emails as $email) {
+            Notification::route('mail', $email)->notify($notification);
+        }
+    }
+
+    private function getNotificationEmailsForOrder(Order $order): array
+    {
+        $emails = User::whereIn('role', [0, 1])
+            ->whereNotNull('email')
+            ->pluck('email')
+            ->map(fn (string $email) => trim($email))
+            ->filter()
+            ->all();
+
+        $creator = User::find($order->added_by);
+        if ($creator && (int) $creator->role === 2 && ! empty($creator->email)) {
+            $emails[] = trim($creator->email);
+        }
+
+        if ($creator && in_array((int) $creator->role, [0, 1], true) && ! empty($order->associated_email)) {
+            $emails[] = trim($order->associated_email);
+        }
+
+        return array_values(array_unique($emails));
     }
 }

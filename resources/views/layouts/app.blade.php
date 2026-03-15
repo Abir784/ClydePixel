@@ -71,12 +71,6 @@
               <span>User List</span>
             </a>
           </li>
-        </li><li>
-            <a href="{{ route('email.add')}}">
-              <iconify-icon icon="mage:email" class="menu-icon"></iconify-icon>
-              <span>Emails</span>
-            </a>
-          </li>
         </li>
     @endif
         <li class="sidebar-menu-group-title">Order Management</li>

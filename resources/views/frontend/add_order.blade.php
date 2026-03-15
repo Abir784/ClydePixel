@@ -18,6 +18,20 @@
                     <input type="text" name="folder_name" class="form-control" placeholder="Enter Folder Name" >
                        <x-input-error :messages="$errors->get('folder_name')" class="mt-2 text-danger" />
                 </div>
+                @if (in_array((int) Auth::user()->role, [0, 1], true))
+                    <div class="col-12 mb-2">
+                        <label class="form-label">Associated Client Email (Optional)</label>
+                        <select name="associated_email" class="form-control">
+                            <option value="">Use my email ({{ Auth::user()->email }})</option>
+                            @foreach (($clientEmails ?? collect()) as $clientEmail)
+                                <option value="{{ $clientEmail }}" @selected(old('associated_email') === $clientEmail)>
+                                    {{ $clientEmail }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('associated_email')" class="mt-2 text-danger" />
+                    </div>
+                @endif
                 <div class="col-12 mt-2">
                     <b>
                         Type of job :<br>
@@ -81,7 +95,7 @@
 
                 </div>
                 <div class="col-12">
-                  <button type="submit" class="btn btn-primary-600">Submit</button>
+                                    <button type="submit" class="btn btn-primary-600">Submit</button>
                 </div>
               </div>
 

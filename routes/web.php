@@ -53,17 +53,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/OrderFields', [OrderFieldController::class, 'store'])->name('order.fields.store');
     Route::patch('/OrderFields/{orderField}/toggle-active', [OrderFieldController::class, 'toggleActive'])->name('order.fields.toggle-active');
     Route::delete('/OrderFields/{orderField}', [OrderFieldController::class, 'destroy'])->name('order.fields.delete');
-    //email
-    Route::get('/EmailAdd',[OrderController::class,'EmailAdd'])->name('email.add');
-    Route::post('/EmailPost',[OrderController::class,'EmailPost'])->name('email.post');
-    Route::post('/EmailDelete',[UserController::class,'EmailDelete'])->name('email.delete');
-
-
-
-//email.post
-
-
-
 });
 
 require __DIR__.'/auth.php';

@@ -11,7 +11,7 @@ class Order extends Model
     // In the Order model (Order.php)
     protected $fillable = [
         'name', 'folder_name', 'added_by', 'last_updated_by',
-        'total_file', 'dynamic_fields',
+        'total_file', 'dynamic_fields', 'associated_email',
         'status', 'deadline', 'comment'
     ];
 

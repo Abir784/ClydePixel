@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Mail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,18 +25,6 @@ class UserController extends Controller
 
         if ($User) {
             $User->delete();
-            return response()->json(['success' => 'User deleted successfully']);
-        } else {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-    }
-    function EmailDelete(Request $request){
-        $EmailID = $request->input('id');
-
-        $email = Mail::find($EmailID);
-
-        if ($email) {
-            $email->delete();
             return response()->json(['success' => 'User deleted successfully']);
         } else {
             return response()->json(['error' => 'User not found'], 404);

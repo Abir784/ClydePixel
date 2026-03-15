@@ -11,12 +11,16 @@ class Order extends Model
     // In the Order model (Order.php)
     protected $fillable = [
         'name', 'folder_name', 'added_by', 'last_updated_by',
-        'simple_clipping', 'in_clip_2_in_1', 'in_clip_3_in_1',
-        'layer_masking', 'retouch', 'nechjoin', 'recolor',
-        'neek_joint_wit_lequefy', 'clipping_with_liquefy',
-        'vector_graphics', 'complex_multi_path', 'total_file',
+        'total_file', 'dynamic_fields',
         'status', 'deadline', 'comment'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'dynamic_fields' => 'array',
+        ];
+    }
     function order_by(){
        return $this->belongsTo(User::class,'added_by');
     }

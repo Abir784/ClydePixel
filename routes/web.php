@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderFieldController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use App\Models\Order;
@@ -12,12 +14,20 @@ use App\Models\Order;
 // });
 
 Route::get('/', function () {
-    $user=User::all()->count();
-    $order=Order::all()->count();
-    $completed_order=Order::where('status',5)->count();
+    $currentUser = Auth::user();
+    $isAdmin = in_array((int) $currentUser->role, [0, 1], true);
+
+    $user = $isAdmin ? User::count() : 1;
+    $order = $isAdmin
+        ? Order::count()
+        : Order::where('added_by', $currentUser->id)->count();
+    $completed_order = $isAdmin
+        ? Order::where('status', 5)->count()
+        : Order::where('added_by', $currentUser->id)->where('status', 5)->count();
 
 
     return view('dashboard',[
+        'isAdmin' => $isAdmin,
         'user'=>$user,
         'order'=>$order,
         'completed_order'=>$completed_order,
@@ -39,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/StatusChange/{id}/{status}',[OrderController::class,'StatusChange'])->name('order.status');
     Route::post('/OrderDelete',[OrderController::class,'OrderDelete'])->name('order.delete');
     Route::get('/OrderView/{id}',[OrderController::class,'OrderView'])->name('order.view');
+    Route::get('/OrderFields', [OrderFieldController::class, 'index'])->name('order.fields');
+    Route::post('/OrderFields', [OrderFieldController::class, 'store'])->name('order.fields.store');
+    Route::patch('/OrderFields/{orderField}/toggle-active', [OrderFieldController::class, 'toggleActive'])->name('order.fields.toggle-active');
+    Route::delete('/OrderFields/{orderField}', [OrderFieldController::class, 'destroy'])->name('order.fields.delete');
     //email
     Route::get('/EmailAdd',[OrderController::class,'EmailAdd'])->name('email.add');
     Route::post('/EmailPost',[OrderController::class,'EmailPost'])->name('email.post');

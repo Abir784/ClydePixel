@@ -25,71 +25,29 @@
                     </b>
                 </div>
                 <div class="row gy-2">
-                    <div class="col-4">
-                        <label class="form-label">Simple Clipping</label>
-                        <input type="number" name="simple_clipping" class="form-control" id="sumField" placeholder="Simple Clipping" >
-                       <x-input-error :messages="$errors->get('simple_clipping')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">In Clip 2 In 1</label>
-                        <input type="number" name="in_clip_2_in_1" class="form-control" id="sumField" placeholder="In Clip 2 In 1" >
-                       <x-input-error :messages="$errors->get('in_clip_2_in_1')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">In Clip 3 In </label>
-                        <input type="number" name="in_clip_3_in_1" class="form-control" id="sumField" placeholder="In Clip 3 In" >
-                       <x-input-error :messages="$errors->get('in_clip_3_in_1')" class="mt-2 text-danger" />
-                    </div>
-                </div>
-                <div class="row gy-2">
-                    <div class="col-4">
-                        <label class="form-label">Layer Masking</label>
-                        <input type="number" name="layer_masking" class="form-control" id="sumField" placeholder="Layer Masking" >
-                       <x-input-error :messages="$errors->get('layer_masking')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">Retouch</label>
-                        <input type="number" name="retouch" class="form-control" id="sumField" placeholder="Retouch" >
-                       <x-input-error :messages="$errors->get('retouch')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">Neckjoin</label>
-                        <input type="number" name="neckjoin" class="form-control" id="sumField" placeholder="Neckjoin" >
-                       <x-input-error :messages="$errors->get('neckjoin')" class="mt-2 text-danger" />
-                    </div>
-                </div>
-                <div class="row gy-2">
-                    <div class="col-4">
-                        <label class="form-label">Recolor</label>
-                        <input type="number" name="recolor" class="form-control" id="sumField" placeholder="Enter Folder Name" >
-                       <x-input-error :messages="$errors->get('recolor')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">Neek Joint With Lequefy</label>
-                        <input type="number" name="neek_joint_wit_lequefy" id="sumField" class="form-control" placeholder="Neek Joint With Lequefy" >
-                       <x-input-error :messages="$errors->get('neek_joint_wit_lequefy')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">Clipping with liquefy</label>
-                        <input type="number" name="clipping_with_liquefy" id="sumField" class="form-control" placeholder="Clipping with liquefy" >
-                       <x-input-error :messages="$errors->get('clipping_with_liquefy')" class="mt-2 text-danger" />
-                    </div>
-                </div>
-                <div class="row gy-2">
-                    <div class="col-4">
-                        <label class="form-label">Vector Graphics</label>
-                        <input type="number" name="vector_graphics" id="sumField" class="form-control" placeholder="Enter Folder Name" >
-                       <x-input-error :messages="$errors->get('vector_graphics')" class="mt-2 text-danger" />
-                    </div>
-                    <div class="col-4">
-                        <label class="form-label">Complex Multi Path</label>
-                        <input type="number" name="complex_multi_path" id="sumField" class="form-control" placeholder="Complex Multi Path" >
-                       <x-input-error :messages="$errors->get('complex_multi_path')" class="mt-2 text-danger" />
-                    </div>
+                    @forelse ($orderFields->where('is_active', true) as $field)
+                        <div class="col-4">
+                            <label class="form-label">{{ $field->label }} @if($field->is_required)<b class="text-danger">*</b>@endif</label>
+                            <input
+                                type="number"
+                                name="dynamic_fields[{{ $field->field_key }}]"
+                                class="form-control sum-field"
+                                min="0"
+                                value="{{ old('dynamic_fields.' . $field->field_key) }}"
+                                placeholder="{{ $field->label }}"
+                            >
+                            <x-input-error :messages="$errors->get('dynamic_fields.' . $field->field_key)" class="mt-2 text-danger" />
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <div class="alert alert-warning mb-0">
+                                No active order fields are configured. Ask a super admin to add fields from Order Fields.
+                            </div>
+                        </div>
+                    @endforelse
                     <div class="col-4">
                         <label class="form-label">Total File <b class="text-danger"></b></label>
                         <input type="number" name="total_file" id="result"  class="form-control" placeholder="Total Files" readonly>
-                       <x-input-error :messages="$errors->get('total_file')" class="mt-2 text-danger" />
                     </div>
                 </div>
                 <div class="row gy-2">
@@ -135,7 +93,7 @@
 <x-slot name="script">
     <script>
         function sumSpecificFields() {
-            const sumFields = document.querySelectorAll('input#sumField');
+            const sumFields = document.querySelectorAll('.sum-field');
             let sum = 0;
 
             sumFields.forEach(field => {
@@ -145,9 +103,10 @@
             document.getElementById('result').value = sum;
         }
 
-        document.querySelectorAll('input#sumField').forEach(field => {
+        document.querySelectorAll('.sum-field').forEach(field => {
             field.addEventListener('input', sumSpecificFields);
         });
+        sumSpecificFields();
     </script>
     @if(session('success'))
     <script>

@@ -1,66 +1,98 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ClydePixel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 11-based order management platform with role-based access (superadmin, admin, client), dynamic order fields, and email notifications.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2+
+- Composer 2+
+- Node.js 18+
+- MySQL 8+
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Install PHP dependencies.
 
-## Learning Laravel
+```bash
+composer install
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. Install frontend dependencies.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+npm install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Create environment file and set values.
 
-## Laravel Sponsors
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. Run migrations and seed admin users.
 
-### Premium Partners
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+5. Build assets.
 
-## Contributing
+```bash
+npm run build
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Deployment Checklist
 
-## Code of Conduct
+1. Configure production `.env`.
+2. Set `APP_ENV=production` and `APP_DEBUG=false`.
+3. Configure MySQL connection and SMTP credentials.
+4. Ensure writable permissions for `storage/` and `bootstrap/cache/`.
+5. Point web server document root to `public/`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## One-Command Deploy (Composer Script)
 
-## Security Vulnerabilities
+Run after pulling latest code and installing dependencies:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer run deploy
+```
 
-## License
+This runs:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. `php artisan optimize:clear`
+2. `php artisan migrate --force`
+3. `php artisan config:cache`
+4. `php artisan route:cache`
+5. `php artisan view:cache`
+
+## Manual Production Commands
+
+```bash
+php artisan down
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan up
+```
+
+## Post-Deploy Verification
+
+1. Run health check pages (`/`, `/login`) in browser.
+2. Verify new order creation and status update flow.
+3. Verify order list timer rendering.
+4. Verify mail send with valid SMTP credentials.
+
+## Notes
+
+- If you run tests after production cache commands, clear optimized caches first:
+
+```bash
+php artisan optimize:clear
+php artisan test
+```

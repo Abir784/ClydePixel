@@ -46,12 +46,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($mails as $key=>$mail )
+                    @forelse ($mails as $key=>$mail )
                     <tr>
 
                         <td>{{$key+1}}</td>
                         <td>{{$mail->name}}</td>
-
                         <td>{{$mail->email}}</td>
 
                         <td>
@@ -60,8 +59,12 @@
 
                         </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4">No Emails to show</td>
+                    </tr>
+                    @endforelse
 
-                    @endforeach
                 </tbody>
             </table>
         </div>

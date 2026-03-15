@@ -15,13 +15,13 @@
                             <th scope="col">Folder Name</th>
                             <th scope="col">Ordered By</th>
                             <th scope="col">Total Files</th>
-                            <th scope="col">Total Time</th>
+                            <th scope="col">Total Time Taken</th>
                             <th scope="col">Completed At</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($order_list as $key=>$order )
+                        @forelse ($order_list as $key=>$order )
                         <tr>
                             <td>
                                 <div class="form-check style-check d-flex align-items-center">
@@ -34,19 +34,26 @@
                             <td>{{$order->total_file}}</td>
                             <td>
                                 @php
-                                $hour = floor(Carbon\Carbon::parse($order->created_at)->timezone('Asia/Dhaka')->diffInHours($order->deadline));
-                                $minutes=Carbon\Carbon::parse($order->created_at)->timezone('Asia/Dhaka')->diffInMinutes($order->deadline) % 60;
+                                $createdAt = Carbon\Carbon::parse($order->created_at)->timezone(config('app.timezone'));
+                                $deadline = Carbon\Carbon::parse($order->deadline)->timezone(config('app.timezone'));
+                                $hour = floor($createdAt->diffInHours($deadline));
+                                $minutes = $createdAt->diffInMinutes($deadline) % 60;
                                 @endphp
 
                                 {{$hour.' H '.' : '.$minutes.' M'}}
                             </td>
-                            <td >{{Carbon\Carbon::parse($order->updated_at)->format('d-M-y')}} <br>
-                                {{Carbon\Carbon::parse($order->updated_at)->format('H:i A')}}</td>
+                            <td >{{Carbon\Carbon::parse($order->updated_at)->timezone(config('app.timezone'))->format('d-M-y')}} <br>
+                                {{Carbon\Carbon::parse($order->updated_at)->timezone(config('app.timezone'))->format('h:i A')}}</td>
                             <td> <a href="{{route('order.view',$order->id)}}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                 <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                             </a></td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="8">No Orders to show</td>
+                        </tr>
+                        @endforelse
+
                     </tbody>
                 </table>
             </div>

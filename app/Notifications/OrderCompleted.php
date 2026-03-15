@@ -38,10 +38,10 @@ class OrderCompleted extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-        ->greeting('Congratulation!!')
-        ->line('We wanted to inform you that your order **'.$this->details['name'].'** has been Completed at **'.$this->details['deadline'].'**.')
+        ->greeting('Congratulations!')
+        ->line('We wanted to inform you that your order **'.$this->details['name'].'** has been completed at **'.$this->details['deadline'].'**.')
         ->action('Click here to check', url('/OrderCompletedShow'))
-        ->line('Thank you for using **CydePixel**!');
+        ->line('Thank you for using **ClydePixel**!');
     }
 
     /**

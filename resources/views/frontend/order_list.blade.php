@@ -2,7 +2,7 @@
     <x-slot name="header">Recent Orders</x-slot>
     <div class="card">
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive order-table-responsive">
                 <table class="table border-primary-table mb-0">
                     <thead>
                         <tr>
@@ -15,7 +15,7 @@
                             <th scope="col">Folder Name</th>
                             <th scope="col">Ordered By</th>
                             <th scope="col">Total Files</th>
-                            <th scope="col">Total Time</th>
+                            <th scope="col">Order Time</th>
                             <th scope="col">Remaining Time</th>
                             <th scope="col">Deadline</th>
                             <th scope="col">Status</th>
@@ -23,7 +23,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($order_list as $key=>$order )
+                        @forelse ($order_list as $key=>$order )
                         <tr>
                             <td>
                                 <div class="form-check style-check d-flex align-items-center">
@@ -35,42 +35,40 @@
                             <td>{{$order->order_by->name}}</td>
                             <td>{{$order->total_file}}</td>
                             <td>
-                                {{Carbon\Carbon::parse($order->created_at)->timezone('Asia/Dhaka')->format('d-M-y')}} <br>
-                                {{Carbon\Carbon::parse($order->created_at)->timezone('Asia/Dhaka')->format('h:i A')}}
+                                {{Carbon\Carbon::parse($order->created_at)->timezone(config('app.timezone'))->format('d-M-y')}} <br>
+                                {{Carbon\Carbon::parse($order->created_at)->timezone(config('app.timezone'))->format('h:i A')}}
                             </td>
-                            <td data-created-at="{{ $order->created_at }}" data-deadline="{{ $order->deadline }}"></td>
+                            <td data-deadline-ts="{{ \Carbon\Carbon::parse($order->deadline)->timezone(config('app.timezone'))->timestamp * 1000 }}"></td>
                             <td>
-                                {{Carbon\Carbon::parse($order->deadline)->format('d-M-y')}} <br>
-                                {{Carbon\Carbon::parse($order->deadline)->format('H:i A')}}
+                                {{Carbon\Carbon::parse($order->deadline)->timezone(config('app.timezone'))->format('d-M-y')}} <br>
+                                {{Carbon\Carbon::parse($order->deadline)->timezone(config('app.timezone'))->format('h:i A')}}
                             </td>
                             <td>
+                                @php
+                                    $statusText = match ((int) $order->status) {
+                                        0 => 'Pending',
+                                        1 => 'Working',
+                                        2 => 'QC1',
+                                        3 => 'QC2',
+                                        4 => 'Done',
+                                        5 => 'Completed',
+                                        default => 'Unknown',
+                                    };
+                                @endphp
 
-                                <div class="btn-group dropdown">
-                                    <button class="btn text-warning-600 hover-text-warning px-18 py-11 dropdown-toggle toggle-icon icon-down" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        @if($order->status == 0)
-                                         Pending
-                                        @elseif ($order->status==1)
-                                        Working
-                                        @elseif ($order->status==2)
-                                        QC1
-                                        @elseif ($order->status==3)
-                                        QC2
-                                        @elseif ($order->status==4)
-                                        Done
-                                        @elseif ($order->status==5)
-                                        Completed
-                                        @endif
-
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>0,'id'=>$order->id])}}">Pending</a></li>
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>1,'id'=>$order->id])}}">Working</a></li>
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>2,'id'=>$order->id])}}">QC1</a></li>
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>3,'id'=>$order->id])}}">QC2</a></li>
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>4,'id'=>$order->id])}}">Done</a></li>
-                                      <li><a class="dropdown-item px-16 py-8 rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900" href="{{route('order.status',['status'=>5,'id'=>$order->id])}}">Completed</a></li>
-                                    </ul>
-                                </div>
+                                @if (Auth::user()->role == 0 || Auth::user()->role == 1)
+                                    <select class="form-select form-select-sm order-status-select" style="min-width: 140px;" data-order-id="{{ $order->id }}" data-current-status="{{ (int) $order->status }}" onchange="changeOrderStatus(this)">
+                                        <option value="0" {{ (int) $order->status === 0 ? 'selected' : '' }}>Pending</option>
+                                        <option value="1" {{ (int) $order->status === 1 ? 'selected' : '' }}>Working</option>
+                                        <option value="2" {{ (int) $order->status === 2 ? 'selected' : '' }}>QC1</option>
+                                        <option value="3" {{ (int) $order->status === 3 ? 'selected' : '' }}>QC2</option>
+                                        <option value="4" {{ (int) $order->status === 4 ? 'selected' : '' }}>Done</option>
+                                        <option value="5" {{ (int) $order->status === 5 ? 'selected' : '' }}>Completed</option>
+                                    </select>
+                                @else
+                                    <span class="badge bg-neutral-200 text-dark">{{ $statusText }}</span>
+                                @endif
+                            </td>
                             <td>
                                 <div class="d-flex align-items-center gap-10 justify-content-center">
                                     <a href="{{route('order.view',$order->id)}}" class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
@@ -79,10 +77,16 @@
                                 @if (Auth::user()->role !=2)
                                    <button type="button" onclick="Deletion('{{$order->id}}')" class="bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                 <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                   </button>
                                 @endif
-                             </td>
+                                </div>
+                            </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="10">No Orders to show</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -93,12 +97,63 @@
     </div>
 
     <x-slot name="script">
+        <style>
+            .order-table-responsive {
+                overflow-x: auto;
+                overflow-y: hidden;
+                position: relative;
+            }
+        </style>
+
         <script>
+        const orderStatusUrlTemplate = @json(route('order.status', ['id' => '__ORDER_ID__', 'status' => '__STATUS__']));
+
+        function changeOrderStatus(selectEl) {
+                const orderId = selectEl.dataset.orderId;
+                const previousStatus = selectEl.dataset.currentStatus;
+                const status = selectEl.value;
+                const url = orderStatusUrlTemplate
+                    .replace('__ORDER_ID__', orderId)
+                    .replace('__STATUS__', status);
+
+                selectEl.disabled = true;
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update status');
+                        }
+
+                        return response.json();
+                    })
+                    .then(() => {
+                        selectEl.dataset.currentStatus = status;
+                    })
+                    .catch(() => {
+                        selectEl.value = previousStatus;
+                        Swal.fire('Error', 'Could not update order status.', 'error');
+                    })
+                    .finally(() => {
+                        selectEl.disabled = false;
+                    });
+            }
+
         function startCountdownForAllOrders() {
-                const timerCells = document.querySelectorAll('[data-created-at]');
+                const timerCells = document.querySelectorAll('[data-deadline-ts]');
 
                 timerCells.forEach((cell) => {
-                    const deadline = new Date(cell.getAttribute('data-deadline')).getTime();
+                    const deadline = Number(cell.getAttribute('data-deadline-ts'));
+
+                    if (!Number.isFinite(deadline) || deadline <= 0) {
+                        cell.textContent = '--';
+                        return;
+                    }
 
                     function updateCountdown() {
                         const now = Date.now();
@@ -109,7 +164,7 @@
                         if (remainingTime <= 0) {
                             // Time has passed the deadline, show the elapsed time
                             const elapsedTime = Math.abs(remainingTime);
-                            const hours = Math.floor((elapsedTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
                             const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
                             const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
 
@@ -119,7 +174,7 @@
 
                         } else {
                             // Time remaining until the deadline
-                            const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
                             const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
                             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 

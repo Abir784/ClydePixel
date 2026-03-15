@@ -37,11 +37,11 @@ class OrderPlaced extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->greeting('Greetings!!')
+            ->greeting('Greetings!')
             ->line('Thank you for your order!')
             ->line('We wanted to inform you that your order **'.$this->details['name'].'** has been created and the expected deadline for completion is **'.$this->details['deadline'].'**.')
             ->action('Click here to check', url('/Order'))
-            ->line('Thank you for using **CydePixel**!');
+            ->line('Thank you for using **ClydePixel**!');
     }
 
 

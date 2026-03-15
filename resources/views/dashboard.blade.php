@@ -3,6 +3,7 @@
             {{ __('Dashboard') }}
     </x-slot>
 <div class="row">
+  @if($isAdmin)
     <div class="col-4">
         <div class="card shadow-none border bg-gradient-start-1 h-100">
           <div class="card-body p-20">
@@ -19,11 +20,14 @@
         </div><!-- card end -->
       </div>
       <div class="col-4">
+    @else
+      <div class="col-6">
+    @endif
         <div class="card shadow-none border bg-gradient-start-4 h-100">
           <div class="card-body p-20">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
               <div>
-                <p class="fw-medium text-primary-light mb-1">Total Orders</p>
+                <p class="fw-medium text-primary-light mb-1">{{ $isAdmin ? 'Total Orders' : 'My Orders' }}</p>
                 <h6 class="mb-0">{{$order}}</h6>
               </div>
               <div class="w-50-px h-50-px bg-success-main rounded-circle d-flex justify-content-center align-items-center">
@@ -36,12 +40,16 @@
           </div>
         </div><!-- card end -->
       </div>
+      @if($isAdmin)
       <div class="col-4">
+      @else
+      <div class="col-6">
+      @endif
         <div class="card shadow-none border bg-gradient-start-2 h-100">
           <div class="card-body p-20">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
               <div>
-                <p class="fw-medium text-primary-light mb-1">Completed Orders</p>
+                <p class="fw-medium text-primary-light mb-1">{{ $isAdmin ? 'Completed Orders' : 'My Completed Orders' }}</p>
                 <h6 class="mb-0">{{$completed_order}}</h6>
               </div>
               <div class="w-50-px h-50-px bg-purple rounded-circle d-flex justify-content-center align-items-center">

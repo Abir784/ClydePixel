@@ -100,6 +100,14 @@
               <span>Completed Orders</span>
             </a>
           </li>
+            @if (Auth::user()->role == 0)
+            <li>
+              <a href="{{ route('order.fields') }}">
+                <iconify-icon icon="solar:settings-linear" class="menu-icon"></iconify-icon>
+                <span>Order Fields</span>
+              </a>
+            </li>
+            @endif
         </li>
 
 

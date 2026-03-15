@@ -1,249 +1,214 @@
 # ClydePixel User Manual
 
-## 1. Purpose
-This manual explains how to use the ClydePixel order management system for all three roles:
-- Super Admin (role `0`)
-- Admin (role `1`)
-- Client (role `2`)
+## 1. Introduction
+This document explains how to use ClydePixel for all three user roles:
+- Super Admin (role 0)
+- Admin (role 1)
+- Client (role 2)
 
-## 2. Access and Login
-- URL: `/login`
-- Enter your email and password.
-- Click `Sign In`.
+This version includes UI screenshots from the current running system.
 
-Common authentication pages:
-- Login page: `/login`
-- Forgot password: `/forgot-password`
-- Email verification: `/verify-email`
+## 2. Login and Account Access
 
-## 3. Role Permissions Overview
+### 2.1 Sign In
+1. Open `/login`.
+2. Enter your email.
+3. Enter your password.
+4. Click `Sign In`.
+
+![Login Screen](screenshots/guest-login.png)
+
+### 2.2 Forgot Password
+1. Open `/forgot-password`.
+2. Enter your account email.
+3. Click `Email Password Reset Link`.
+4. Open the received email and follow the reset link.
+
+![Forgot Password Screen](screenshots/guest-forgot-password.png)
+
+## 3. Permission Matrix
 
 | Feature | Super Admin | Admin | Client |
 |---|---|---|---|
 | View dashboard | Yes | Yes | Yes |
-| Add user | Yes | Yes (cannot assign Super Admin role) | No |
-| View user list | Yes | Yes (cannot see/delete Super Admin users) | No |
-| Delete users | Yes | Yes (except Super Admin) | No |
+| Add user | Yes | Yes | No |
+| View user list | Yes | Yes | No |
+| Delete users | Yes | Yes (cannot delete Super Admin) | No |
 | Create order | Yes | Yes | Yes |
 | Edit order status | Yes | Yes | No |
 | Delete order | Yes | Yes | No |
-| View all active orders | Yes | Yes | No (only own orders) |
-| View all completed orders | Yes | Yes | No (only own orders) |
+| View active orders | All | All | Own only |
+| View completed orders | All | All | Own only |
 | Manage order fields | Yes | No | No |
 | Update own profile | Yes | Yes | Yes |
 | Change own password | Yes | Yes | Yes |
 
-## 4. Main Navigation
-All logged-in roles can access:
-- `Dashboard`
-- `Add Order`
-- `Order List`
-- `Completed Orders`
-- `My Profile`
+## 4. Main Features (Step-by-Step)
 
-Super Admin and Admin additionally see:
-- `Add User`
-- `User List`
-
-Super Admin only:
-- `Order Fields`
-
-## 5. Super Admin Guide
-
-### 5.1 Dashboard
+### 4.1 Dashboard
 Path: `/`
-- View `Total Users`, `Total Orders`, and `Completed Orders`.
 
-### 5.2 Add User
+How to use:
+1. Log in.
+2. Open `Dashboard` from sidebar.
+3. Read KPI cards:
+   - Super Admin/Admin: Total Users, Total Orders, Completed Orders.
+   - Client: My Orders, My Completed Orders.
+
+![Super Admin Dashboard](screenshots/superadmin-dashboard.png)
+![Admin Dashboard](screenshots/admin-dashboard.png)
+![Client Dashboard](screenshots/client-dashboard.png)
+
+### 4.2 Add User (Super Admin and Admin)
 Path: `/register`
-- Fill in:
-  - Full Name
-  - Email
-  - Phone
-  - Password + Confirm Password
-  - Role
-- Super Admin can create all roles, including another Super Admin.
-- Click `Submit`.
 
-### 5.3 User List
+How to use:
+1. Open `Add User`.
+2. Fill Full Name, Email, Phone, Password, Confirm Password.
+3. Select role:
+   - Super Admin can assign Super Admin, Admin, or Client.
+   - Admin can assign Admin or Client.
+4. Click `Submit`.
+5. Confirm success message.
+
+![Super Admin Add User](screenshots/superadmin-add-user.png)
+![Admin Add User](screenshots/admin-add-user.png)
+
+### 4.3 User List (Super Admin and Admin)
 Path: `/usersList`
-- View user records with role labels.
-- Click eye icon to inspect user details.
-- Click delete icon to remove a user.
 
-### 5.4 Add Order
+How to use:
+1. Open `User List`.
+2. Review each user row.
+3. Click eye icon to view user details popup.
+4. Click delete icon to remove user if needed.
+5. Use pagination at the bottom to navigate.
+
+![Super Admin User List](screenshots/superadmin-users-list.png)
+![Admin User List](screenshots/admin-users-list.png)
+
+### 4.4 Add Order (All Roles)
 Path: `/Order`
-- Fill in order basics:
-  - Name
-  - Folder Name
-- Optional: `Associated Client Email`
-  - Dropdown values are client emails from user table.
-  - If blank, associated email defaults to your own email.
-- Enter quantities for active order fields.
-- Deadline is entered as `hours` + `minutes` from now.
-- Optional comment.
-- Click `Submit`.
 
-Notification behavior after creation:
-- Sent to all Admin + Super Admin users.
-- Also sent to:
-  - selected associated client email, or
-  - creator email if no associated email selected.
+How to use:
+1. Open `Add Order`.
+2. Fill `Name` and `Folder Name`.
+3. If logged in as Super Admin/Admin:
+   - Optional `Associated Client Email` dropdown is visible.
+   - If you leave it empty, your own email is used as associated email.
+4. Enter quantities for each active work field.
+5. Verify `Total File` is auto-calculated.
+6. Set deadline using Hours and Minutes.
+7. Optionally add a comment.
+8. Click `Submit`.
 
-### 5.5 Order List (Active Orders)
+![Super Admin Add Order](screenshots/superadmin-add-order.png)
+![Admin Add Order](screenshots/admin-add-order.png)
+![Client Add Order](screenshots/client-add-order.png)
+
+### 4.5 Order List / Work Progress
 Path: `/OrderShow`
-- See all non-completed orders.
-- Columns include ordered by, total files, deadline, remaining time, status.
-- Change status directly from dropdown:
-  - Pending, Working, QC1, QC2, Done, Completed
-- Open details using eye icon.
-- Delete orders with delete icon.
 
-### 5.6 Completed Orders
+How to use:
+1. Open `Order List`.
+2. Review columns: Order Name, Folder, Ordered By, Total Files, Order Time, Remaining Time, Deadline, Status.
+3. If Super Admin/Admin:
+   - Change status from dropdown: Pending, Working, QC1, QC2, Done, Completed.
+   - Click eye icon for details.
+   - Click delete icon to delete an order.
+4. If Client:
+   - You can only view your own orders.
+   - Status is read-only.
+   - Eye icon opens details.
+
+![Super Admin Order List](screenshots/superadmin-order-list.png)
+![Admin Order List](screenshots/admin-order-list.png)
+![Client Order List](screenshots/client-order-list.png)
+
+### 4.6 Completed Orders
 Path: `/OrderCompletedShow`
-- See completed order history with completion time.
-- Open details using eye icon.
 
-### 5.7 Order Details
-Path: `/OrderView/{id}`
-- Shows:
-  - Basic metadata
-  - Dynamic work-item counts
-  - Status
-  - Comment (if present)
-- If not completed, status can be updated.
-- If completed, completion metadata is displayed.
+How to use:
+1. Open `Completed Orders`.
+2. Review total files, total time taken, and completed time.
+3. Click eye icon to inspect details.
+4. Use pagination when needed.
 
-### 5.8 Order Fields Management (Super Admin only)
+![Super Admin Completed Orders](screenshots/superadmin-completed-orders.png)
+![Admin Completed Orders](screenshots/admin-completed-orders.png)
+![Client Completed Orders](screenshots/client-completed-orders.png)
+
+### 4.7 Order Fields Management (Super Admin Only)
 Path: `/OrderFields`
-- Create new dynamic order field:
-  - Label
-  - Optional field key
-  - Sort order
-  - Required flag
-  - Active flag
-- Existing field actions:
-  - Activate/Deactivate
-  - Delete
 
-### 5.9 Profile and Password
+How to use:
+1. Open `Order Fields`.
+2. To add new field:
+   - Enter label.
+   - Optionally set field key.
+   - Set sort order.
+   - Set Required and Active flags.
+   - Click `Add Field`.
+3. To maintain existing fields:
+   - Use `Activate/Deactivate` button.
+   - Use `Delete` button for removal.
+
+![Super Admin Order Fields](screenshots/superadmin-order-fields.png)
+
+### 4.8 Profile and Password (All Roles)
 Path: `/profile`
-- Update name and phone.
-- Change password in `Update Password` section.
 
-## 6. Admin Guide
+How to update profile:
+1. Open profile menu (top-right).
+2. Click `My Profile`.
+3. In `Profile Information`, update name and phone.
+4. Click `Submit`.
 
-### 6.1 What is different from Super Admin
-Admin has almost all operational capabilities except:
-- No access to `Order Fields`.
-- Cannot create/view/delete Super Admin users.
+How to change password:
+1. In `Update Password` section, enter current password.
+2. Enter new password.
+3. Confirm new password.
+4. Click `Submit`.
 
-### 6.2 Admin workflow
-1. Login.
-2. Review dashboard stats.
-3. Create users (Admin or Client) if required.
-4. Create orders and optionally assign client email via dropdown.
-5. Track active orders in `Order List`.
-6. Progress order status until `Completed`.
-7. Review completion history.
-8. Maintain own profile/password.
+![Super Admin Profile](screenshots/superadmin-profile.png)
+![Admin Profile](screenshots/admin-profile.png)
+![Client Profile](screenshots/client-profile.png)
 
-## 7. Client Guide
+## 5. Order Status Lifecycle
+- 0: Pending
+- 1: Working
+- 2: QC1
+- 3: QC2
+- 4: Done
+- 5: Completed
 
-### 7.1 Dashboard
-Path: `/`
-- Sees `My Orders` and `My Completed Orders`.
+When status becomes `Completed`, the order appears in `Completed Orders`.
 
-### 7.2 Add Order
-Path: `/Order`
-- Fill order form and submit.
-- Client does not see associated email dropdown.
+## 6. Notification Rules
 
-Notification behavior for client-created orders:
-- Sent to all Admin + Super Admin users.
-- Sent to the client creator email.
-
-### 7.3 Order List
-Path: `/OrderShow`
-- Client sees only own active orders.
-- Status is read-only badge.
-- Can open order details.
-- Cannot delete orders.
-
-### 7.4 Completed Orders
-Path: `/OrderCompletedShow`
-- Client sees only own completed orders.
-- Can open details.
-
-### 7.5 Profile and Password
-Path: `/profile`
-- Update own profile and password.
-
-## 8. Order Status Lifecycle
-- `0` Pending
-- `1` Working
-- `2` QC1
-- `3` QC2
-- `4` Done
-- `5` Completed
-
-`Completed` orders move from `Order List` to `Completed Orders`.
-
-## 9. Notifications Summary
-
-### 9.1 On Order Creation
+### 6.1 On Order Creation
 Recipients:
-- All Admin + Super Admin users
-- Plus one of:
-  - creator client email (if created by client), or
-  - associated email (if selected by admin/super admin), or
-  - creator admin/super admin email (if associated email left blank)
+1. All Admin and Super Admin users.
+2. Plus one additional recipient:
+   - Client creator email (if created by a client), or
+   - Selected associated client email (if selected by admin/super admin), or
+   - Creator admin/super admin email (if associated email left empty).
 
-### 9.2 On Order Completion
+### 6.2 On Order Completion
 Same recipient logic as order creation.
 
-## 10. Screenshots to Attach (UI Checklist)
-Use this checklist to attach screenshots in your final published SOP/PDF.
+## 7. Troubleshooting
+- Cannot log in:
+  - Verify email and password.
+  - Reset password from `/forgot-password` if needed.
+- You cannot update status:
+  - Only Admin/Super Admin can update order status.
+- Order fields missing in Add Order page:
+  - Super Admin must set fields as Active in `Order Fields`.
+- Client cannot find an order:
+  - Clients only see orders they created.
 
-### 10.1 Common Screens
-- Login page (`/login`)
-- Dashboard
-- Profile page
+## 8. Printable Version
+For print/PDF export, use:
+- `docs/user-manual/USER_MANUAL_PRINT.md`
 
-### 10.2 Super Admin Screens
-- Add User page (`/register`) with role dropdown
-- User List page with view/delete actions
-- Add Order page with `Associated Client Email` dropdown
-- Order List page with editable status dropdown
-- Completed Orders page
-- Order Details page
-- Order Fields page
-
-### 10.3 Admin Screens
-- Dashboard
-- Add User page (without Super Admin option)
-- User List page
-- Add Order page with `Associated Client Email` dropdown
-- Order List page with editable status dropdown
-- Completed Orders page
-
-### 10.4 Client Screens
-- Dashboard (`My Orders`, `My Completed Orders`)
-- Add Order page (without associated email dropdown)
-- Order List with read-only status badge
-- Completed Orders page
-
-## 11. Troubleshooting
-- Cannot access dashboard after login:
-  - Ensure email is verified.
-- Status update fails:
-  - Only Admin and Super Admin can update order status.
-- Missing order fields in add-order form:
-  - Super Admin must configure and activate fields in `Order Fields`.
-- Client cannot see some orders:
-  - Clients can only view orders where they are the creator.
-
-## 12. Suggested Publishing Format
-For team rollout, export this manual into:
-- PDF with screenshots per section
-- One-page quick-start for each role

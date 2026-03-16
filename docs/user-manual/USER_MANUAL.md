@@ -16,6 +16,13 @@ This version includes UI screenshots from the current running system.
 3. Enter your password.
 4. Click `Sign In`.
 
+### 2.1.1 Example User Credentials
+- Super Admin: superadmin@clydepixel.com / 12345678
+- Admin: admin@clydepixel.com / 12345678
+- Client: client@clydepixel.com / 12345678
+
+**Use actual email addresses when creating users, so email notifications are delivered correctly.**
+
 ![Login Screen](screenshots/guest-login.png)
 
 ### 2.2 Forgot Password

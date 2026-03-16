@@ -30,7 +30,7 @@
                             </td>
                             <td>{{$order->name}}</td>
                             <td>{{$order->folder_name}}</td>
-                            <td>{{$order->order_by->name}}</td>
+                            <td>{{ optional($order->order_by)->name ?? 'User Deleted' }}</td>
                             <td>{{$order->total_file}}</td>
                             <td>
                                 @php

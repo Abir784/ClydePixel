@@ -16,7 +16,7 @@
                       </tr>
                       <tr>
                         <th scope="col">Ordered By: </th>
-                        <td>{{$order->order_by->name}}</td>
+                        <td>{{ optional($order->order_by)->name ?? 'User Deleted' }}</td>
                         <th scope="col">Total Files:</th>
                         <td>{{$order->total_file}}</td>
                       </tr>
@@ -56,7 +56,7 @@
                               <span class="badge bg-neutral-200 text-dark">{{ $statusText }}</span>
                             @endif
                           @else
-                           Completed At {{Carbon\Carbon::parse($order->updated_at)->timezone(config('app.timezone'))->format('d-m-Y h:i A')}} <br> By {{$order->updated_by->name}}
+                           Completed At {{Carbon\Carbon::parse($order->updated_at)->timezone(config('app.timezone'))->format('d-m-Y h:i A')}} <br> By {{ optional($order->updated_by)->name ?? 'User Deleted' }}
                           @endif
 
 
